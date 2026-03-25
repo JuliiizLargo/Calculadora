@@ -1,5 +1,7 @@
 package com.julian.calcucompleta.calculatorModule.viewmodel
 
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.julian.calcucompleta.calculatorModule.model.CalculatorModel
@@ -9,6 +11,23 @@ import com.julian.calcucompleta.recordModule.model.RecordModel
 class CalculatorViewModel : ViewModel() {
     private val model = CalculatorModel()
     val operation = mutableStateListOf<String>()
+
+    // Previsualización en tiempo real
+    val previewResult by derivedStateOf {
+        // Solo se calcula si hay al menos una operación (ej: 5 + 3)
+        // y el último elemento no es un operador
+        if (operation.size >= 3 && operation.last() !in getOperators()) {
+
+            val res = model.evaluateExpression(operation.toList())
+            if (res != null) {
+
+                if (res % 1 == 0.0) res.toInt().toString().replace(".", ",")
+                else res.toString().replace(".", ",")
+
+            } else null
+            
+        } else null
+    }
 
     private fun getOperators() = listOf("+", "-", "x", "÷", "%")
 

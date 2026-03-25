@@ -15,7 +15,7 @@ fun AppNavigation() {
         navController = navController,
         startDestination = "calculator"
     ) {
-        // Estilo exacto al ejemplo que mandaste
+
         composable("calculator") {
             CalculatorScreen(navController)
         }

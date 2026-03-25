@@ -10,11 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.julian.calcucompleta.calculatorModule.viewmodel.CalculatorViewModel
+import com.julian.calcucompleta.ui.theme.CalcuCompletaTheme
 
 @Composable
 fun CalculatorButton(
@@ -112,19 +115,43 @@ fun CalculatorScreen(
             modifier = Modifier.fillMaxWidth().weight(1f),
             contentAlignment = Alignment.BottomEnd
         ) {
-            Text(
-                text = operation.joinToString(" ").replace(".", ","),
-                fontSize = 40.sp,
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.End
+            ) {
+
+                val preview = viewModel.previewResult
+                if (preview != null) {
+                    Text(
+                        text = preview,
+                        fontSize = 26.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+                Text(
+                    text = operation.joinToString(" ").replace(".", ","),
+                    fontSize = 40.sp,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
         }
         ButtonGrid(
             modifier = Modifier.fillMaxWidth()
         ) { value ->
             viewModel.onButtonClick(value)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CalculatorPreview() {
+    CalcuCompletaTheme {
+        val navController = rememberNavController()
+        CalculatorScreen(navController = navController)
     }
 }
