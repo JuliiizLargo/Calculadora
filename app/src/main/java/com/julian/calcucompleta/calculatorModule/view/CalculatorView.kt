@@ -1,11 +1,14 @@
 package com.julian.calcucompleta.calculatorModule.view
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +22,11 @@ import androidx.navigation.compose.rememberNavController
 import com.julian.calcucompleta.calculatorModule.viewmodel.CalculatorViewModel
 import com.julian.calcucompleta.ui.theme.CalcuCompletaTheme
 
+/**
+ * CalculatorButton
+ *
+ * Representa un botón individual de la calculadora con estilo circular.
+ */
 @Composable
 fun CalculatorButton(
     backgroundColor: Color,
@@ -42,6 +50,11 @@ fun CalculatorButton(
     }
 }
 
+/**
+ * ButtonGrid
+ *
+ * Organiza todos los botones de la calculadora en una cuadrícula proporcional.
+ */
 @Composable
 fun ButtonGrid(
     modifier: Modifier = Modifier,
@@ -87,12 +100,27 @@ fun ButtonGrid(
     }
 }
 
+/**
+ * CalculatorScreen
+ *
+ * Pantalla principal que contiene la pantalla de visualización y el teclado numérico.
+ */
 @Composable
 fun CalculatorScreen(
     navController: NavController,
     viewModel: CalculatorViewModel = viewModel()
 ) {
     val operation = viewModel.operation
+    val scrollState = rememberScrollState()
+
+    /**
+     * LaunchedEffect
+     *
+     * Desplaza automáticamente el texto al final cada vez que cambia la operación.
+     */
+    LaunchedEffect(operation.size, operation.lastOrNull()) {
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -126,15 +154,19 @@ fun CalculatorScreen(
                         text = preview,
                         fontSize = 26.sp,
                         color = Color.Gray,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        maxLines = 1
                     )
                 }
                 Text(
                     text = operation.joinToString(" ").replace(".", ","),
                     fontSize = 40.sp,
                     textAlign = TextAlign.End,
+                    maxLines = 1,
+                    softWrap = false,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .horizontalScroll(scrollState)
                         .padding(16.dp)
                 )
             }

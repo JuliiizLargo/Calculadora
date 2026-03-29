@@ -12,32 +12,42 @@ class CalculatorViewModel : ViewModel() {
     private val model = CalculatorModel()
     val operation = mutableStateListOf<String>()
 
-    // Previsualización en tiempo real
+    /**
+     * previewResult
+     *
+     * Previsualización en tiempo real del resultado antes de presionar el botón de igual.
+     */
     val previewResult by derivedStateOf {
         // Solo se calcula si hay al menos una operación (ej: 5 + 3)
         // y el último elemento no es un operador
         if (operation.size >= 3 && operation.last() !in getOperators()) {
-
             val res = model.evaluateExpression(operation.toList())
             if (res != null) {
-
                 if (res % 1 == 0.0) res.toInt().toString().replace(".", ",")
                 else res.toString().replace(".", ",")
-
             } else null
-            
         } else null
     }
 
     private fun getOperators() = listOf("+", "-", "x", "÷", "%")
 
+    /**
+     * onButtonClick
+     *
+     * Gestiona los eventos de clic en los botones de la calculadora y actualiza el estado de la operación.
+     */
     fun onButtonClick(value: String) {
         when (value) {
             in "0".."9" -> {
                 if (operation.isEmpty() || operation.last() in getOperators()) {
                     operation.add(value)
                 } else {
-                    operation[operation.lastIndex] += value
+                    // Límite de 12 dígitos por número
+                    val currentNumber = operation.last()
+                    val digitCount = currentNumber.count { it.isDigit() }
+                    if (digitCount < 12) {
+                        operation[operation.lastIndex] += value
+                    }
                 }
             }
 
@@ -63,8 +73,14 @@ class CalculatorViewModel : ViewModel() {
             }
 
             in getOperators() -> {
-                if (operation.isNotEmpty() && operation.last() !in getOperators()) {
-                    operation.add(value)
+                if (operation.isNotEmpty()) {
+                    if (operation.last() in getOperators()) {
+                        // Si el último ya era un operador, se reemplaza
+                        operation[operation.lastIndex] = value
+                    } else {
+                        // Si no era un operador, se añade normalmente
+                        operation.add(value)
+                    }
                 }
             }
 
@@ -85,6 +101,10 @@ class CalculatorViewModel : ViewModel() {
 
             "=" -> {
                 if (operation.isNotEmpty()) {
+                    // Verifica si hay al menos un operador y la operación tiene una estructura mínima (n op n)
+                    val hasOperator = operation.any { it in getOperators() }
+                    val isFullOperation = operation.size >= 3
+
                     val expression = operation.joinToString(" ").replace(".", ",")
                     val resultValue = model.evaluateExpression(operation.toList())
                     
@@ -94,13 +114,15 @@ class CalculatorViewModel : ViewModel() {
                         val formatted = if (resultValue % 1 == 0.0) resultValue.toInt().toString() else resultValue.toString()
                         operation.add(formatted)
                         
-                        // Guardar en el historial
-                        RecordModel.records.add(
-                            RecordItem(
-                                expression = expression,
-                                result = formatted.replace(".", ",")
+                        // Guardar en el historial solo si es una operación completa
+                        if (hasOperator && isFullOperation) {
+                            RecordModel.records.add(
+                                RecordItem(
+                                    expression = expression,
+                                    result = formatted.replace(".", ",")
+                                )
                             )
-                        )
+                        }
                     } else {
                         operation.add("Error")
                     }

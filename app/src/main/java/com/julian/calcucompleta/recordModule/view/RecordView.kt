@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -26,8 +27,23 @@ fun RecordScreen(
             LazyColumn {
                 items(viewModel.history) { item ->
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = item.expression, fontSize = 16.sp, color = Color.White)
-                        Text(text = "= ${item.result}", fontSize = 22.sp, color = MaterialTheme.colorScheme.primary)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = item.expression,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                            Text(
+                                text = " = ",
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                            Text(
+                                text = item.result,
+                                fontSize = 20.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                         HorizontalDivider()
                     }
                 }
